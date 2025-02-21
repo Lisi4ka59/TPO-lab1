@@ -59,6 +59,4 @@ public class HeapSort {
 
         System.out.println("Отсортированный массив: " + Arrays.toString(arr));
     }
-
-
 }

@@ -1,60 +1,52 @@
 import com.lisi4ka.part1.MaclaurinSeriesCos;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class MaclaurinSeriesTest {
 
-    @Test
-    void testCos_Zero() {
-        assertEquals(1.0, MaclaurinSeriesCos.cos(0, 10), 1e-10);
+    @ParameterizedTest
+    @CsvFileSource(resources = "test-data.csv")
+    void testCos_Basic(double x, int terms, double expected, double delta) {
+        Assertions.assertEquals(expected, MaclaurinSeriesCos.cos(x, terms), delta);
     }
 
-    @Test
-    void testCos_PiOver3() {
-        assertEquals(0.5, MaclaurinSeriesCos.cos(Math.PI / 3, 10), 1e-10);
+    @ParameterizedTest
+    @CsvSource({
+            "1.0471975511965976, 10",
+            "0, 100"
+    })
+    void testCos_PositiveAndNegativeX(double x, int terms) {
+        Assertions.assertEquals(MaclaurinSeriesCos.cos(-x, terms), MaclaurinSeriesCos.cos(x, terms));
     }
 
-    @Test
-    void testCos_NegativeX() {
-        assertEquals(0.5, MaclaurinSeriesCos.cos(-Math.PI / 3, 10), 1e-10);
+    @ParameterizedTest
+    @CsvSource({
+            "100, 10000",
+            "9, 4"
+    })
+    void testCos_LargeX_ThrowsException(double x, int terms) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(x, terms));
     }
 
-    @Test
-    void testCos_SmallTerms() {
-        assertEquals(1.0, MaclaurinSeriesCos.cos(Math.PI / 3, 1), 1e-10);
+    @ParameterizedTest
+    @ValueSource(ints = {0})
+    void testCos_ThrowsExceptionForNegativeTerms(int terms) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(2.4398, terms));
     }
 
-    @Test
-    void testCos_LargeX_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(10, 10));
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.NaN})
+    void testCos_ThrowsExceptionForNaN(double x) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(x, 10));
     }
 
-    @Test
-    void testCos_XGreaterThan2TimesTerms_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(9, 4)); // 9 > 2*4
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.POSITIVE_INFINITY})
+    void testCos_ThrowsExceptionForInfinity(double x) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(x, 10));
     }
-
-    @Test
-    void testCos_LargeTerms() {
-        assertEquals(0.5, MaclaurinSeriesCos.cos(Math.PI / 3, 500), 1e-15);
-    }
-
-    @Test
-    void testCos_ThrowsExceptionForNegativeTerms() {
-        assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(1.0, 0));
-    }
-
-    @Test
-    void testCos_ThrowsExceptionForNaN() {
-        assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(Double.NaN, 10));
-    }
-
-    @Test
-    void testCos_ThrowsExceptionForInfinity() {
-        assertThrows(IllegalArgumentException.class, () -> MaclaurinSeriesCos.cos(Double.POSITIVE_INFINITY, 10));
-    }
-
-
-
 }
+
